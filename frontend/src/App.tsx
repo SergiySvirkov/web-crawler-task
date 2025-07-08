@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import UrlForm from './components/UrlForm';
+import ResultsTable from './components/ResultsTable/ResultsTable'; // Updated import path
 import { getAnalysisResults } from './services/api';
 import { AnalysisResult } from './types/analysis';
 import './App.css';
@@ -8,17 +9,21 @@ function App() {
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use useCallback to memoize the function, so it's not recreated on every render
   const fetchResults = useCallback(async () => {
     setIsLoading(true);
     const data = await getAnalysisResults();
-    setResults(data);
+    // Sort by most recent first by default
+    const sortedData = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    setResults(sortedData);
     setIsLoading(false);
   }, []);
 
-  // Fetch initial data when the component mounts
   useEffect(() => {
+    // Fetch initial data and then poll for updates every 5 seconds
     fetchResults();
+    const intervalId = setInterval(fetchResults, 5000); // Polling for real-time updates
+
+    return () => clearInterval(intervalId); // Cleanup on component unmount
   }, [fetchResults]);
 
   return (
@@ -30,15 +35,10 @@ function App() {
       <main className="App-main">
         <UrlForm onUrlAdded={fetchResults} />
         
-        {/* We will add the results table here in the next step */}
-        {isLoading ? (
+        {isLoading && results.length === 0 ? (
           <p>Loading results...</p>
         ) : (
-          <div>
-            <h2>Analysis Results ({results.length})</h2>
-            {/* Placeholder for the table */}
-            <pre>{JSON.stringify(results, null, 2)}</pre>
-          </div>
+          <ResultsTable results={results} />
         )}
       </main>
     </div>
