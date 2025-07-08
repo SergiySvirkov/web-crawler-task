@@ -10,7 +10,6 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    // Add the Authorization header to all requests
     'Authorization': `Bearer ${API_TOKEN}`,
   },
 });
@@ -22,7 +21,6 @@ export const getAnalysisResults = async (): Promise<AnalysisResult[]> => {
     return response.data;
   } catch (error) {
     console.error("Error fetching analysis results:", error);
-    // In a real app, you'd want to handle this error more gracefully
     alert('Failed to fetch data. Is the backend running and the API token correct?');
     return [];
   }
@@ -36,8 +34,41 @@ export const addUrlForAnalysis = async (url: string): Promise<any> => {
     } catch (error) {
         console.error("Error adding URL:", error);
         alert('Failed to add URL. Please check the URL and try again.');
-        throw error; // Re-throw the error to be caught by the component
+        throw error;
     }
-}
+};
 
-// We will add more API functions here later (e.g., for deleting, re-running analysis)
+// --- NEW FUNCTIONS FOR BULK ACTIONS ---
+
+/**
+ * Deletes multiple URLs by their IDs.
+ * @param ids - An array of numbers representing the IDs to delete.
+ */
+export const deleteUrls = async (ids: number[]): Promise<void> => {
+    try {
+        // The backend expects a DELETE request with a body.
+        await apiClient.delete('/urls', {
+            data: { ids },
+        });
+    } catch (error) {
+        console.error("Error deleting URLs:", error);
+        alert('Failed to delete selected items.');
+        throw error;
+    }
+};
+
+/**
+ * Triggers re-analysis for multiple URLs.
+ * @param ids - An array of numbers representing the IDs to re-run.
+ */
+export const rerunAnalysisForUrls = async (ids: number[]): Promise<void> => {
+    try {
+        // We run all requests in parallel for better performance.
+        const promises = ids.map(id => apiClient.put(`/urls/${id}/process`));
+        await Promise.all(promises);
+    } catch (error) {
+        console.error("Error re-running analysis:", error);
+        alert('Failed to re-run analysis for selected items.');
+        throw error;
+    }
+};
