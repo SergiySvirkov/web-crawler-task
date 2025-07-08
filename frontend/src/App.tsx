@@ -9,27 +9,26 @@ function App() {
   const [results, setResults] = useState<AnalysisResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use useCallback to memoize the function, so it's not recreated on every render.
-  // This function will be passed down to child components to trigger a data refresh.
   const fetchResults = useCallback(async () => {
-    // We don't set loading to true for polling to avoid flickering
-    // setIsLoading(true); 
     const data = await getAnalysisResults();
     setResults(data);
-    setIsLoading(false); // Set loading to false after the first fetch
+    setIsLoading(false);
   }, []);
 
+  // This useEffect hook handles both the initial data fetch and the real-time polling.
   useEffect(() => {
-    // Fetch initial data when the component mounts
+    // 1. Fetch initial data as soon as the component mounts.
     fetchResults();
 
-    // Set up polling to get real-time status updates every 5 seconds
+    // 2. Set up an interval to poll for new data every 5 seconds.
+    // This will repeatedly call fetchResults to get the latest analysis statuses.
     const intervalId = setInterval(() => {
-      console.log("Polling for new data...");
+      console.log("Polling for new data..."); // You can see this message in your browser's console
       fetchResults();
-    }, 5000);
+    }, 5000); // 5000 milliseconds = 5 seconds
 
-    // Clean up the interval when the component unmounts to prevent memory leaks
+    // 3. Clean up the interval when the component is unmounted.
+    // This is a crucial step to prevent memory leaks.
     return () => clearInterval(intervalId);
   }, [fetchResults]); // The effect depends on the memoized fetchResults function
 
@@ -40,14 +39,11 @@ function App() {
         <p>Analysis Dashboard</p>
       </header>
       <main className="App-main">
-        {/* Pass the fetchResults function to UrlForm so it can refresh the list after adding a new URL */}
         <UrlForm onUrlAdded={fetchResults} />
         
-        {/* Show a loading message only on the initial load */}
         {isLoading && results.length === 0 ? (
           <p>Loading results...</p>
         ) : (
-          // Pass the results data and the refresh function to the table component
           <ResultsTable results={results} onRefresh={fetchResults} />
         )}
       </main>
