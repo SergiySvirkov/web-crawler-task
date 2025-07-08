@@ -15,11 +15,11 @@ var DB *sql.DB
 func Init() error {
 	// Get database connection details from environment variables
 	// It's a good practice to not hardcode credentials
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
+	dbUser := os.Getenv("root")
+	dbPassword := os.Getenv("sergiy")
+	dbHost := os.Getenv("127.0.0.1")
+	dbPort := os.Getenv("3306")
+	dbName := os.Getenv("sykell_challenge")
 
 	// Create the Data Source Name (DSN) string
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPassword, dbHost, dbPort, dbName)
