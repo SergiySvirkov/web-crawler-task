@@ -1,0 +1,27 @@
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 12px;
+  text-transform: capitalize;
+  color: white;
+  text-align: center;
+  display: inline-block;
+  min-width: 60px;
+}
+
+.status-badge.queued {
+  background-color: #6c757d; /* Gray */
+}
+
+.status-badge.running {
+  background-color: #007bff; /* Blue */
+}
+
+.status-badge.done {
+  background-color: #28a745; /* Green */
+}
+
+.status-badge.error {
+  background-color: #dc3545; /* Red */
+}
